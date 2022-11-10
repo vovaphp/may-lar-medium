@@ -14,8 +14,11 @@
 Route::get('/', function () {
     return view('welcome');
 });
-Route::auth();
-Route::get('/home','HomeController@index');
+
 Route::auth();
 
-Route::get('/home', 'HomeController@index');
+Route::get('/home','HomeController@index');
+
+Route::resource('task','TaskController',['exept'=>['show']]);
+
+

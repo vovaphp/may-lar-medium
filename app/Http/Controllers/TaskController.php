@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Task;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -34,7 +35,7 @@ class TaskController extends Controller
      */
     public function create()
     {
-        //
+        return view('tasks.create');
     }
 
     /**
@@ -45,18 +46,15 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $this->validate($request,[
+            'name'=>'required|max:255',
+        ]);
+        $user=Auth::user();
+        $user->tasks()->create([
+            'name'=>$request->name,
+        ]);
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
+        return redirect(route('task.index'));
     }
 
     /**
@@ -85,11 +83,13 @@ class TaskController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  App\Models\Task $task
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Task $task)
     {
-        //
+        $this->authorize('owner',$task);
+        $task->delete();
+        return redirect(route('task.index'));
     }
 }

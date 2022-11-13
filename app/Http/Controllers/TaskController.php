@@ -6,6 +6,7 @@ use App\Models\Task;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
+use App\Http\Requests\ValidTask;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
@@ -22,9 +23,10 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
+        $tasks= Task::all();
+        Task::checkOwnerAuthorise($tasks);
         return view('tasks.index',[
-            'tasks' => $user->tasks,
+            'tasks' => $tasks,
         ]);
     }
 
@@ -44,15 +46,25 @@ class TaskController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ValidTask $request)
     {
-        $this->validate($request,[
+/*        $this->validate($request,[
             'name'=>'required|max:255',
-        ]);
+        ]);*/
         $user=Auth::user();
         $user->tasks()->create([
             'name'=>$request->name,
         ]);
+
+/*        $task = new Task();
+        $task->name = '';
+        $task->user_id=$user->id;
+        $task->save();
+
+        Task::create([
+            name=>'',
+            user_id=>$user->id,
+        ]);*/
 
         return redirect(route('task.index'));
     }
@@ -60,31 +72,36 @@ class TaskController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int  $task
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Task $task)
     {
-        //
+        $this->authorize('owner',$task);
+        return view('tasks.edit',[
+            'task' => $task,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  App\Http\Requests\ValidTask  $request
+     * @param  App\Models\Task  $id
      */
-    public function update(Request $request, $id)
+    public function update(ValidTask $request, Task $task)
     {
-        //
+        $this->authorize('owner',$task);
+        $task->name = $request->name;
+        $task->save();
+        return redirect(route('task.index'));
+
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  App\Models\Task $task
-     * @return \Illuminate\Http\Response
      */
     public function destroy(Task $task)
     {

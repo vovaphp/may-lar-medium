@@ -27,16 +27,33 @@
                             <td class="table-text">
                                 <div>{{ $task->name }}</div>
                             </td>
-
                             <td>
-                                <form action="{{ route('task.destroy',$task->id) }}" method="POST">
-                                    {{ csrf_field() }}
-                                    {{ method_field('DELETE') }}
+                                <div class="distance">
+                                    @if ($task->OwnerAuthorise)
+                                        <form action="{{ route('task.destroy',$task->id) }}" method="POST">
+                                            {{ csrf_field() }}
+                                            {{ method_field('DELETE') }}
 
-                                    <button type="submit" class="btn btn-danger">
-                                        <i class="fa fa-btn fa-trash"></i> Delete
-                                    </button>
-                                </form>
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="fa fa-btn fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('task.edit',$task->id) }}" method="POST">
+                                            {{ csrf_field() }}
+                                            {{ method_field('GET') }}
+                                            <button type="submit" class="btn btn-normal">
+                                                <i class="fa fa-btn fa-edit"></i> EDIT
+                                            </button>
+                                        </form>
+                                    @else
+                                        <button type="submit" class="btn">
+                                            <i class="fa fa-btn fa-trash"></i> Delete
+                                        </button>
+                                        <button type="submit" class="btn">
+                                            <i class="fa fa-btn fa-edit"></i> EDIT
+                                        </button>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforeach
